@@ -20,9 +20,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabStop: FloatingActionButton
     private lateinit var time: TextView
 
-    private var timerLengthSeconds: Long = 0
+    /** DEFAULT OF 1 MINUTE **/
+    private var timeLength = 6000L
     private var timerState = TimerState.Stopped
-    private var secondsRemaining = 0L
+    private val numFormat = "%.2f"
 
     enum class TimerState {
         Stopped, Paused, Running
@@ -40,24 +41,27 @@ class MainActivity : AppCompatActivity() {
         fabStop = findViewById(R.id.fab_stop)
         time = findViewById(R.id.tv_timer)
 
-        time.text = getString(R.string.timer, "00", "00", "00")
+        time.text = getString(R.string.timer, (timeLength / 60000L).toString(), "00", "00")
 
         fabPause.setOnClickListener { _ ->
             Toast.makeText(applicationContext, ":･ﾟ☆✧* PAUSING *✧☆ﾟ･:", Toast.LENGTH_SHORT).show()
             timerState = TimerState.Paused
             updateButtons()
+            pause()
             Log.d("TIMER_STATE", "State: $timerState")
         }
         fabPlay.setOnClickListener { _ ->
             Toast.makeText(applicationContext, ":･ﾟ☆✧* STARTING *✧☆ﾟ･:", Toast.LENGTH_SHORT).show()
             timerState = TimerState.Running
             updateButtons()
+            begin()
             Log.d("TIMER_STATE", "State: $timerState")
         }
         fabStop.setOnClickListener { _ ->
             Toast.makeText(applicationContext, ":･ﾟ☆✧* STOPPING *✧☆ﾟ･:", Toast.LENGTH_SHORT).show()
             timerState = TimerState.Stopped
             updateButtons()
+            stop()
             Log.d("TIMER_STATE", "State: $timerState")
         }
     }
@@ -73,6 +77,7 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun updateButtons() {
         when (timerState) {
             TimerState.Running -> {
@@ -91,5 +96,35 @@ class MainActivity : AppCompatActivity() {
                 fabStop.isEnabled = true
             }
         }
+    }
+
+    private fun begin() {
+        timer = object : CountDownTimer(timeLength, 1000) {
+            override fun onTick(millisRemaining: Long) {
+                Log.d("TIMER_INFO", """
+                    |=======================================
+                    |~=*!TIME REPORT!*=~
+                    |Time remaining: ${millisRemaining / 60000L}
+                    |Minutes Elapsed: ${(timeLength - (millisRemaining / 60000L)).toInt()}
+                    |Seconds Elapsed: ${(timeLength - ((millisRemaining % 60000L) / 1000)).toInt()}
+                    |Milliseconds Elapsed: ${timeLength - millisRemaining}
+                    |=======================================
+                    """.trimMargin())
+                //todo update ui
+            }
+
+            override fun onFinish() {
+                //notify()
+                Toast.makeText(applicationContext, "Your time has come to an end! >:^)", Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+    }
+
+    private fun stop() {
+        //todo finish
+    }
+
+    private fun pause() {
+        //todo finish
     }
 }
