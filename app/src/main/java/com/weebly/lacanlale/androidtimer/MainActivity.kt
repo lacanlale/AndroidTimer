@@ -1,5 +1,6 @@
 package com.weebly.lacanlale.androidtimer
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.support.design.widget.FloatingActionButton
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var time: TextView
 
     /** DEFAULT OF 1 MINUTE **/
-    private var timeLength = 6000L
+    private var timeLength = 60000L
     private var timerState = TimerState.Stopped
     private val numFormat = "%.2f"
 
@@ -34,14 +35,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setIcon(R.drawable.ic_timer)
-        supportActionBar?.title = "\t\t\t:･ﾟ☆✧*⏰TIMER⏰*✧☆ﾟ･:"
+        supportActionBar?.title = "\t✧cl0ckwork✧"
 
         fabPause = findViewById(R.id.fab_pause)
         fabPlay = findViewById(R.id.fab_play)
         fabStop = findViewById(R.id.fab_stop)
         time = findViewById(R.id.tv_timer)
 
-        time.text = getString(R.string.timer, (timeLength / 60000L).toString(), "00", "00")
+        time.text = getString(R.string.timer, "00", "0${(timeLength / 60000L)}", "00")
+        updateButtons()
 
         fabPause.setOnClickListener { _ ->
             Toast.makeText(applicationContext, ":･ﾟ☆✧* PAUSING *✧☆ﾟ･:", Toast.LENGTH_SHORT).show()
@@ -84,16 +86,28 @@ class MainActivity : AppCompatActivity() {
                 fabPlay.isEnabled = false
                 fabPause.isEnabled = true
                 fabStop.isEnabled = true
+
+                fabPlay.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.inactive))
+                fabPause.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.active))
+                fabStop.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.active))
             }
             TimerState.Stopped -> {
                 fabPlay.isEnabled = true
                 fabPause.isEnabled = false
                 fabStop.isEnabled = false
+
+                fabPlay.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.active))
+                fabPause.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.inactive))
+                fabStop.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.inactive))
             }
             TimerState.Paused -> {
                 fabPlay.isEnabled = true
                 fabPause.isEnabled = false
                 fabStop.isEnabled = true
+
+                fabPlay.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.active))
+                fabPause.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.inactive))
+                fabStop.backgroundTintList= ColorStateList.valueOf(getResources().getColor(R.color.active))
             }
         }
     }
@@ -104,13 +118,19 @@ class MainActivity : AppCompatActivity() {
                 Log.d("TIMER_INFO", """
                     |=======================================
                     |~=*!TIME REPORT!*=~
-                    |Time remaining: ${millisRemaining / 60000L}
-                    |Minutes Elapsed: ${(timeLength - (millisRemaining / 60000L)).toInt()}
-                    |Seconds Elapsed: ${(timeLength - ((millisRemaining % 60000L) / 1000)).toInt()}
-                    |Milliseconds Elapsed: ${timeLength - millisRemaining}
+                    |Seconds remaining: ${millisRemaining / 1000L} seconds
+                    |Milliseconds remaining: $millisRemaining ms
+                    |---------------------------------------
+                    |Minutes Elapsed: ${millisRemaining / 1000L} minutes
+                    |Seconds Elapsed: ${(timeLength - millisRemaining).toInt()} seconds
+                    |Milliseconds Elapsed: ${timeLength - millisRemaining} milliseconds
                     |=======================================
                     """.trimMargin())
-                //todo update ui
+                time.text = getString(
+                        R.string.timer,
+                        (millisRemaining / 600000L).toString(),
+                        (millisRemaining / 60000L).toString(),
+                        (millisRemaining / 1000L).toString())
             }
 
             override fun onFinish() {
@@ -121,10 +141,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stop() {
-        //todo finish
+        //todo finish this
     }
 
     private fun pause() {
-        //todo finish
+        timer.cancel()
     }
 }
